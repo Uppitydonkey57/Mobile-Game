@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -23,15 +24,27 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int grabRadiusPoints;
     private GameObject grabPoint;
     private LineRenderer lineRenderer;
+    [SerializeField] private Transform armTarget;
     private bool dashing;
     private float curvePoint;
+
+    [SerializeField] private ParticleSystem dustParticle;
+    private float emissionSpeed;
+    private ParticleSystem.EmissionModule dustEmission;
+
+    [SerializeField] private GameObject graphicsObject;
+
+    public delegate void DeadAction();
+    public static event DeadAction PlayerDead;
 
     private Touch touch;
 
     private GameMaster gm;
 
+    private Animator animator;
+
     /*REMOVE LATER*/
-    public TextMeshProUGUI speedDebug;
+    [SerializeField] private TextMeshProUGUI speedDebug;
 
     // Start is called before the first frame update
     void Start()
@@ -45,6 +58,11 @@ public class PlayerController : MonoBehaviour
         moveSpeed = initialMoveSpeed;
 
         dashSpeed = initialDashSpeed;
+
+        animator = GetComponent<Animator>();
+
+        dustEmission = dustParticle.emission;
+        emissionSpeed = dustEmission.rateOverTime.constant;
     }
 
     // Update is called once per frame
@@ -53,6 +71,7 @@ public class PlayerController : MonoBehaviour
         speedDebug.text = curvePoint.ToString() + "\n" + speedCurve.Evaluate(curvePoint).ToString();
 
         grounded = Physics2D.OverlapCircle(groundPoint.position, 0.01f, groundLayer);
+        animator.SetBool("Grounded", grounded);
 
         if (grounded)
         {
@@ -60,6 +79,11 @@ public class PlayerController : MonoBehaviour
             {
                 curvePoint -= 0.0001f;
             }
+
+            dustEmission.rateOverTime = emissionSpeed;
+        } else
+        {
+            dustEmission.rateOverTime = 0;
         }
 
         if (!dashing)
@@ -83,12 +107,10 @@ public class PlayerController : MonoBehaviour
             {
                 grabPoint = grabPointCollider.gameObject;
                 StartCoroutine(Dash());
-                Debug.Log("Grab");
             }
             else if (touch.phase == TouchPhase.Began && grounded)
             {
                 //Jump?
-                Debug.Log("Jump");
             }
         }
     }
@@ -98,7 +120,11 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Destructive"))
         {
-            Destroy(gameObject);
+            PlayerDead?.Invoke();
+            rb.rotation = 0f;
+            rb.constraints = RigidbodyConstraints2D.None;
+            animator.SetTrigger("Dead");
+            Destroy(this);
         }
     }
 
@@ -106,11 +132,12 @@ public class PlayerController : MonoBehaviour
     {
         dashing = true;
         lineRenderer.enabled = true;
+        animator.SetBool("Dashing", true);
 
         //Maybe don't do this?
         Vector2 tagetPosition = (Vector2)grabPoint.transform.position - rb.position;
-        float angle = Mathf.Atan2(tagetPosition.y, tagetPosition.x); // * Mathf.Rad2Deg - 90f
-        //rb.rotation = angle;
+        float angle = Mathf.Atan2(tagetPosition.y, tagetPosition.x);
+        graphicsObject.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg - 90f);
 
         Vector2 moveDirection = new Vector2(Mathf.Cos(angle) * Mathf.Rad2Deg, Mathf.Sin(angle) * Mathf.Rad2Deg);
 
@@ -122,7 +149,7 @@ public class PlayerController : MonoBehaviour
 
         while (dashWaitTime > 0)
         {
-            lineRenderer.SetPosition(0, new Vector3(transform.position.x, transform.position.y, 0));
+            lineRenderer.SetPosition(0, new Vector3(armTarget.position.x, armTarget.position.y, 0));
             lineRenderer.SetPosition(1, grabPoint.transform.position);
 
             //dashSpeed += 0.0002f;
@@ -156,6 +183,8 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(rb.velocity.x, yVelocity *= 0.5f);
         lineRenderer.enabled = false;
         //moveSpeed = Mathf.Abs(rb.velocity.x);
+        graphicsObject.transform.rotation = Quaternion.Euler(0, 0, 0);
         dashing = false;
+        animator.SetBool("Dashing", false);
     }
 }

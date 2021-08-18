@@ -14,7 +14,12 @@ public class GameMaster : MonoBehaviour
     private float placePosition;
 
     [SerializeField] private TextMeshProUGUI scoreText;
-    private float score;
+    [SerializeField] private TextMeshProUGUI multiplierText;
+    [SerializeField] private TextMeshProUGUI highScoreText;
+    [SerializeField] private int[] multiplierThresholds;
+    private int score;
+    private int multiplier = 1;
+    
 
     private void Start()
     {
@@ -22,6 +27,18 @@ public class GameMaster : MonoBehaviour
         CreateChunk(firstChunk);
 
         scoreText.text = score.ToString();
+
+        multiplierText.text = multiplier.ToString() + "x";
+    }
+
+    private void OnEnable()
+    {
+        PlayerController.PlayerDead += OnPlayerDead;
+    }
+
+    private void OnDisable()
+    {
+        PlayerController.PlayerDead -= OnPlayerDead;
     }
 
     private void Update()
@@ -43,7 +60,34 @@ public class GameMaster : MonoBehaviour
 
     public void ChangeScore(int amount)
     {
-        score += amount;
+        score += amount * multiplier;
         scoreText.text = score.ToString();
+    }
+
+    public void ChangeMultiplier(float dashTime)
+    {
+        if (dashTime > multiplierThresholds[multiplier])
+        {
+            if (multiplier + 1 > 0)
+            {
+                multiplier += 1;
+                multiplierText.text = multiplier.ToString() + "x";
+            }
+        }
+
+        if (dashTime == 0)
+        {
+            
+        }
+    }
+
+    void OnPlayerDead() 
+    {
+        if (score > PlayerPrefs.GetInt("HighScore"))
+        {
+            PlayerPrefs.SetInt("HighScore", score);
+        }
+
+        highScoreText.text = "HighScore: " + PlayerPrefs.GetInt("HighScore").ToString();
     }
 }
