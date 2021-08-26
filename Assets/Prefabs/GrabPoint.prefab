@@ -92,6 +92,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2187198428009627770}
   - component: {fileID: 2187198428009627769}
+  - component: {fileID: 2808842200432422398}
   m_Layer: 0
   m_Name: GrabPoint
   m_TagString: Untagged
@@ -167,6 +168,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2808842200432422398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2187198428009627768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 201232194e8df70459f8744e4c8bce5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2997739430985466160
 GameObject:
   m_ObjectHideFlags: 0

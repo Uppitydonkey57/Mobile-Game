@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.Advertisements;
 
 public class GameMaster : MonoBehaviour
 {
@@ -10,23 +11,33 @@ public class GameMaster : MonoBehaviour
     [SerializeField] private GameObject[] chunks;
 
     private List<GameObject> worldChunks;
+    private Chunk previouseChunk;
 
     private float placePosition;
 
     [SerializeField] private TextMeshProUGUI scoreText;
+    private Animator scoreAnimator;
     [SerializeField] private TextMeshProUGUI multiplierText;
     [SerializeField] private TextMeshProUGUI highScoreText;
     [SerializeField] private int[] multiplierThresholds;
+
+    [SerializeField] private Animator loadAnimator;
+    [SerializeField] private float sceneEndTime;
+
     private int score;
+    public int Score { get { return score; } }
     private int multiplier = 1;
     
 
     private void Start()
     {
         placePosition = transform.position.x;
-        CreateChunk(firstChunk);
+        
+        if (chunks.Length > 0) CreateChunk(firstChunk);
 
         scoreText.text = score.ToString();
+
+        scoreAnimator = scoreText.GetComponent<Animator>();
 
         multiplierText.text = multiplier.ToString() + "x";
     }
@@ -43,23 +54,46 @@ public class GameMaster : MonoBehaviour
 
     private void Update()
     {
-        CreateChunk(chunks[Random.Range(0, chunks.Length)]);
+        if (chunks.Length > 0) CreateChunk(chunks[Random.Range(0, chunks.Length)]);
     }
 
     public void ResetScene()
     {
-        //Replace this with an actual scene transition
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        StartCoroutine(LoadSceneCoroutine(SceneManager.GetActiveScene().name));
+    }
+
+    public void LoadScene(string name)
+    {
+        StartCoroutine(LoadSceneCoroutine(name));
+    }
+
+    IEnumerator LoadSceneCoroutine(string sceneName)
+    {
+        loadAnimator.SetTrigger("EndScene");
+        yield return new WaitForSeconds(sceneEndTime);
+
+        /*if (Advertisement.IsReady("video"))
+        {
+            Advertisement.Show("video");
+        }
+
+        while (Advertisement.isShowing) { yield return null; } */
+
+        SceneManager.LoadScene(sceneName);
     }
 
     void CreateChunk(GameObject createChunk)
     {
-        Instantiate(createChunk, new Vector2(placePosition, transform.position.y), Quaternion.identity);
+        float xOffset = (previouseChunk != null) ? (createChunk.GetComponent<Chunk>().size.x - previouseChunk.size.x) / 2 : 0;
+        Chunk currentChunk = Instantiate(createChunk, new Vector2(placePosition + xOffset, transform.position.y), Quaternion.identity).GetComponent<Chunk>();
         placePosition += createChunk.GetComponent<Chunk>().size.x;
+        previouseChunk = currentChunk;
+
     }
 
     public void ChangeScore(int amount)
     {
+        scoreAnimator.SetTrigger("Scored");
         score += amount * multiplier;
         scoreText.text = score.ToString();
     }

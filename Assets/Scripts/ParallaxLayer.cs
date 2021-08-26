@@ -21,7 +21,7 @@ public class ParallaxLayer : MonoBehaviour
     }
 
     // Update is called once per frame
-    void LateUpdate()
+    void FixedUpdate()
     {
         Vector2 deltaMovement = (Vector2)cameraTransform.position - lastCameraPosition;
         transform.position += (Vector3)new Vector2(deltaMovement.x * parallaxSpeedMultiplier.x, deltaMovement.y * parallaxSpeedMultiplier.y);

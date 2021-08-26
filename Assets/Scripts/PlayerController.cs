@@ -34,6 +34,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private GameObject graphicsObject;
 
+    [SerializeField] private AudioClip deathSound;
+    [SerializeField] private AudioClip grappleSound;
+    private AudioSource source;
+
     public delegate void DeadAction();
     public static event DeadAction PlayerDead;
 
@@ -60,6 +64,8 @@ public class PlayerController : MonoBehaviour
         dashSpeed = initialDashSpeed;
 
         animator = GetComponent<Animator>();
+
+        source = GetComponent<AudioSource>();
 
         dustEmission = dustParticle.emission;
         emissionSpeed = dustEmission.rateOverTime.constant;
@@ -115,14 +121,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //FIX THIS LATER THIS IS SOME REALLY AWFUL CODE!!
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Destructive"))
         {
             PlayerDead?.Invoke();
             rb.rotation = 0f;
+            rb.drag = 0.6f;
             rb.constraints = RigidbodyConstraints2D.None;
+            lineRenderer.enabled = false;
+            dustEmission.enabled = false;
+            FindObjectOfType<ScreenShake>().Shake(.08f, .08f);
+            FindObjectOfType<ScreenFreeze>().Freeze(0.07f);
+            source.PlayOneShot(deathSound);
             animator.SetTrigger("Dead");
             Destroy(this);
         }
@@ -133,8 +144,8 @@ public class PlayerController : MonoBehaviour
         dashing = true;
         lineRenderer.enabled = true;
         animator.SetBool("Dashing", true);
+        source.PlayOneShot(grappleSound);
 
-        //Maybe don't do this?
         Vector2 tagetPosition = (Vector2)grabPoint.transform.position - rb.position;
         float angle = Mathf.Atan2(tagetPosition.y, tagetPosition.x);
         graphicsObject.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg - 90f);
@@ -152,8 +163,6 @@ public class PlayerController : MonoBehaviour
             lineRenderer.SetPosition(0, new Vector3(armTarget.position.x, armTarget.position.y, 0));
             lineRenderer.SetPosition(1, grabPoint.transform.position);
 
-            //dashSpeed += 0.0002f;
-
             curvePoint += 0.0002f;
 
             rb.velocity = moveDirection * (dashSpeed * (speedCurve.Evaluate(curvePoint) + 1));
@@ -163,10 +172,15 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
+            //Add Score
             if (Physics2D.OverlapCircle(grabPoint.transform.position, grabPointRadius, playerLayer) && !startWaiting)
             {
-                Debug.Log("Entered Grab Radius!");
-                gm.ChangeScore(grabRadiusPoints);
+                GrabPoint grabPointCheck = grabPoint.GetComponentInParent<GrabPoint>();
+                if (!grabPointCheck.hasBeenGrabbed)
+                {
+                    gm.ChangeScore(grabRadiusPoints);
+                    grabPointCheck.hasBeenGrabbed = true;
+                }
                 startWaiting = true;
             }
 
@@ -182,7 +196,7 @@ public class PlayerController : MonoBehaviour
 
         rb.velocity = new Vector2(rb.velocity.x, yVelocity *= 0.5f);
         lineRenderer.enabled = false;
-        //moveSpeed = Mathf.Abs(rb.velocity.x);
+
         graphicsObject.transform.rotation = Quaternion.Euler(0, 0, 0);
         dashing = false;
         animator.SetBool("Dashing", false);

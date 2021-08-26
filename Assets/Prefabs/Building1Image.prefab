@@ -93,6 +93,7 @@ GameObject:
   - component: {fileID: 5082246591123756246}
   - component: {fileID: 5082246591123756247}
   - component: {fileID: 3805680559395085690}
+  - component: {fileID: 2113802348637008070}
   m_Layer: 0
   m_Name: Building1Image
   m_TagString: Untagged
@@ -192,3 +193,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 13.76, y: 15}
   m_EdgeRadius: 0
+--- !u!114 &2113802348637008070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5082246591123756232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32580e104073c734aa7045cc957ef745, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: -1268172454830812994, guid: 81a397019eebcc14ab25c2f0da31c8d9, type: 3}
+  - {fileID: -2301515492470509865, guid: 82140d14639a1184799d5d29107fb41a, type: 3}
