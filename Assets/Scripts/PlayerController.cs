@@ -47,7 +47,6 @@ public class PlayerController : MonoBehaviour
 
     private Animator animator;
 
-    /*REMOVE LATER*/
     [SerializeField] private TextMeshProUGUI speedDebug;
 
     // Start is called before the first frame update
@@ -74,9 +73,10 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        speedDebug.text = curvePoint.ToString() + "\n" + speedCurve.Evaluate(curvePoint).ToString();
+        if (speedDebug != null) speedDebug.text = curvePoint.ToString() + "\n" + speedCurve.Evaluate(curvePoint).ToString();
 
         grounded = Physics2D.OverlapCircle(groundPoint.position, 0.01f, groundLayer);
+
         animator.SetBool("Grounded", grounded);
 
         if (grounded)

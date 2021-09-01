@@ -24,22 +24,36 @@ public class GameMaster : MonoBehaviour
     [SerializeField] private Animator loadAnimator;
     [SerializeField] private float sceneEndTime;
 
+    private bool playerDead;
+
     private int score;
     public int Score { get { return score; } }
     private int multiplier = 1;
-    
+
+    [SerializeField] private string adsID = "4276955";
+    [SerializeField] private bool isTestingAds;
 
     private void Start()
     {
+        if (!Advertisement.isInitialized)
+            Advertisement.Initialize(adsID, isTestingAds);
+
         placePosition = transform.position.x;
         
         if (chunks.Length > 0) CreateChunk(firstChunk);
 
-        scoreText.text = score.ToString();
+        if (scoreText != null)
+        {
+            scoreText.text = score.ToString();
 
-        scoreAnimator = scoreText.GetComponent<Animator>();
+            scoreAnimator = scoreText.GetComponent<Animator>();
+        }
 
-        multiplierText.text = multiplier.ToString() + "x";
+        if (multiplierText != null) multiplierText.text = multiplier.ToString() + "x";
+
+        if (chunks.Length > 0) for (int i = 0; i < 5; i++) CreateChunk(chunks[Random.Range(0, 5)]);
+
+        StartCoroutine(SpawnChunks());
     }
 
     private void OnEnable()
@@ -52,9 +66,13 @@ public class GameMaster : MonoBehaviour
         PlayerController.PlayerDead -= OnPlayerDead;
     }
 
-    private void Update()
+    IEnumerator SpawnChunks()
     {
-        if (chunks.Length > 0) CreateChunk(chunks[Random.Range(0, chunks.Length)]);
+        while (true)
+        {
+            if (chunks.Length > 0 && !playerDead) CreateChunk(chunks[Random.Range(0, chunks.Length)]);
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     public void ResetScene()
@@ -72,12 +90,17 @@ public class GameMaster : MonoBehaviour
         loadAnimator.SetTrigger("EndScene");
         yield return new WaitForSeconds(sceneEndTime);
 
-        /*if (Advertisement.IsReady("video"))
+        Debug.Log(Advertisement.IsReady("Interstitial"));
+        Debug.Log(Advertisement.IsReady("video"));
+        Debug.Log(Advertisement.isInitialized);
+        Debug.Log(Advertisement.isSupported);
+
+        if (Advertisement.IsReady("Interstitial"))
         {
-            Advertisement.Show("video");
+            Advertisement.Show("Interstitial");
         }
 
-        while (Advertisement.isShowing) { yield return null; } */
+        while (Advertisement.isShowing) { yield return null; } 
 
         SceneManager.LoadScene(sceneName);
     }
@@ -123,5 +146,7 @@ public class GameMaster : MonoBehaviour
         }
 
         highScoreText.text = "HighScore: " + PlayerPrefs.GetInt("HighScore").ToString();
+
+        playerDead = true; 
     }
 }

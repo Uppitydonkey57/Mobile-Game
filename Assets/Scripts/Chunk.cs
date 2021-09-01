@@ -15,9 +15,30 @@ public class Chunk : MonoBehaviour
         Destroy(gameObject);
     }
 
+
+    private void OnEnable()
+    {
+        //PlayerController.PlayerDead += PlayerDead;
+    }
+
+    private void OnDisable()
+    {
+        //PlayerController.PlayerDead -= PlayerDead;
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(transform.position, size);
+    }
+
+    void PlayerDead()
+    {
+        Debug.Log("Player Dead!");
+
+        if (transform.position.x > Camera.main.transform.position.x + 50 || transform.position.x < Camera.main.transform.position.x - 50)
+        {
+            RemoveChunk();
+        }
     }
 }

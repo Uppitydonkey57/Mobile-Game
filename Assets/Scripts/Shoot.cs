@@ -5,6 +5,9 @@ using UnityEngine;
 public class Shoot : MonoBehaviour
 {
     [SerializeField] private float waitTime;
+    [SerializeField] private float waitChange = 0.2f;
+    [SerializeField] private float waitMinimum = 1f;
+    private float wait;
 
     [SerializeField] private float shootSpeed;
 
@@ -12,12 +15,14 @@ public class Shoot : MonoBehaviour
 
     private GameMaster gm;
 
-    private int previousScoreMarker;
+    private int previousScoreMarker = 0;
     [SerializeField] private int scoreMarkAmount = 50;
 
     // Start is called before the first frame update
     void Start()
     {
+        wait = waitTime;
+
         gm = FindObjectOfType<GameMaster>();
 
         StartCoroutine(ShootWait());
@@ -27,7 +32,13 @@ public class Shoot : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(waitTime);
+            yield return new WaitForSeconds(wait);
+
+            if (gm.Score > previousScoreMarker + scoreMarkAmount && wait > waitMinimum)
+            {
+                wait -= waitChange;
+                previousScoreMarker = gm.Score;
+            }
 
             if (gm.Score > 100)
             {

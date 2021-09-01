@@ -107,6 +107,8 @@ MonoBehaviour:
   multiplierThresholds: 
   loadAnimator: {fileID: 0}
   sceneEndTime: 0.66
+  adsID: 4276955
+  isTestingAds: 0
 --- !u!1 &5817677337616870452
 GameObject:
   m_ObjectHideFlags: 0
@@ -143,6 +145,7 @@ Transform:
   - {fileID: 5817677338876753880}
   - {fileID: 5817677339054329373}
   - {fileID: 5817677338342643309}
+  - {fileID: 5817677338625007129}
   m_Father: {fileID: 5817677338011165935}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -491,8 +494,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waitTime: 1
+  waitChange: 0.2
+  waitMinimum: 1
   shootSpeed: 5
   projectilePrefab: {fileID: 8930627853601525185, guid: 142f3367bdfdf574da830b72ab935b02, type: 3}
+  scoreMarkAmount: 50
 --- !u!1 &5817677338356875499
 GameObject:
   m_ObjectHideFlags: 0
@@ -522,7 +528,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5817677339358287560}
-  - {fileID: 5817677338625007129}
   m_Father: {fileID: 5817677338011165935}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -586,11 +591,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5817677338625007128}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.1351397, y: -0.151, z: 10}
-  m_LocalScale: {x: 22.93933, y: 11.687438, z: 1}
+  m_LocalPosition: {x: 0.3025999, y: 0.1486, z: 10}
+  m_LocalScale: {x: 38.95653, y: 24.267534, z: 1}
   m_Children: []
-  m_Father: {fileID: 5817677338356875493}
-  m_RootOrder: 1
+  m_Father: {fileID: 5817677337616870455}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5817677338625007130
 SpriteRenderer:
